@@ -132,6 +132,26 @@
             if (selectedButton) selectedButton.classList.add('selected');
         }
 
+        function populateDropdown(employees) {
+            const dropdown = document.getElementById('employee-name');
+            dropdown.innerHTML = '<option value="">Select an employee</option>';
+
+            employees.forEach(employee => {
+                const option = document.createElement('option');
+                option.textContent = `${employee.FIRST_NAME} ${employee.LAST_NAME}`;
+                option.value = employee.EMPLOYEE_NUMBER;
+                option.dataset.email = employee.EMAIL; // Store email in data attribute
+                dropdown.appendChild(option);
+            });
+        }
+
+        // Update email field when an employee is selected
+        document.getElementById('employee-name').addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            document.getElementById('employee-email').value = selectedOption.dataset.email || '';
+        });
+
+
         window.onload = fetchEmployees;
     </script>
 </head>
@@ -141,7 +161,8 @@
         <h1>Points Tracker</h1><br </header>
 
         <main>
-            <form id="points-form" action="script.php" method="POST" onsubmit="handleSubmit(event)">
+            <form id="points-form" action="add_data.php" method="POST" onsubmit="handleSubmit(event)">
+                <input type="hidden" id="employee-email" name="employee-email">
                 <label for="access-code">Access Code:</label>
                 <input type="password" id="access-code" name="access-code" required>
 
