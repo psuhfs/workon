@@ -23,18 +23,18 @@
                 );
                 const data = await response.json();
                 allEmployees = data.EmployeeList; // Store all employees globally
-        
+
                 populateDropdown(allEmployees); // Populate the dropdown initially
             } catch (error) {
                 console.error('Error fetching employee data:', error);
             }
         }
-        
+
         // Function to populate the dropdown with employees
         function populateDropdown(employees) {
             const dropdown = document.getElementById('employee-name');
             dropdown.innerHTML = '<option value="">Select an employee</option>'; // Clear previous options
-        
+
             employees.forEach(employee => {
                 const option = document.createElement('option');
                 option.textContent = `${employee.FIRST_NAME} ${employee.LAST_NAME}`;
@@ -42,7 +42,7 @@
                 dropdown.appendChild(option);
             });
         }
-        
+
         // Function to filter the dropdown based on input
         function filterEmployees() {
             const input = document.getElementById('employee-search').value.toLowerCase();
@@ -51,7 +51,7 @@
             );
             populateDropdown(filteredEmployees); // Repopulate the dropdown with filtered results
         }
-                
+
         // Function to fetch and display shifts for the selected employee and date
         async function fetchShifts() {
             const employeeId = document.getElementById('employee-name').value;
@@ -119,18 +119,18 @@
         function selectReason(reason) {
             // Set the value of the hidden input
             document.getElementById('reason').value = reason;
-        
+
             // Clear previous selections
             document.querySelectorAll('.reason-button').forEach(button => {
                 button.classList.remove('selected');
             });
-        
+
             // Highlight the selected button
             const selectedButton = Array.from(document.querySelectorAll('.reason-button')).find(
                 button => button.textContent === reason
             );
             if (selectedButton) selectedButton.classList.add('selected');
-        }        
+        }
 
         window.onload = fetchEmployees;
     </script>
@@ -141,17 +141,18 @@
         <h1>Points Tracker</h1><br </header>
 
         <main>
-            <form id="points-form" action="#" method="POST" onsubmit="handleSubmit(event)">
+            <form id="points-form" action="script.php" method="POST" onsubmit="handleSubmit(event)">
                 <label for="access-code">Access Code:</label>
                 <input type="password" id="access-code" name="access-code" required>
 
                 <label for="employee-search">Search Employee:</label>
-                <input type="text" id="employee-search" placeholder="Start typing an employee name..." oninput="filterEmployees()">
-                
+                <input type="text" id="employee-search" placeholder="Start typing an employee name..."
+                    oninput="filterEmployees()">
+
                 <select id="employee-name" name="employee-name" onchange="fetchShifts()" required title="Employee Name">
                     <option value="">Select an employee</option>
                 </select>
-                
+
                 <label for="shift-date">Select Date:</label>
                 <input type="date" id="shift-date" name="shift-date" onchange="fetchShifts()" required>
 
@@ -166,19 +167,23 @@
                 <br>
                 <div class="button-group">
                     <button type="button" class="reason-button" onclick="selectReason('Tardy')">Tardy</button>
-                    <button type="button" class="reason-button" onclick="selectReason('Uniform & Grooming Standards')">Uniform & Grooming Standards</button>
+                    <button type="button" class="reason-button"
+                        onclick="selectReason('Uniform & Grooming Standards')">Uniform & Grooming Standards</button>
                     <button type="button" class="reason-button" onclick="selectReason('NCNS')">NCNS</button>
-                    <button type="button" class="reason-button" onclick="selectReason('Unexcused Absence')">Unexcused Absence</button>
-                    <button type="button" class="reason-button" onclick="selectReason('Excused Absence')">Excused Absence</button>
+                    <button type="button" class="reason-button" onclick="selectReason('Unexcused Absence')">Unexcused
+                        Absence</button>
+                    <button type="button" class="reason-button" onclick="selectReason('Excused Absence')">Excused
+                        Absence</button>
                     <button type="button" class="reason-button" onclick="selectReason('No ID')">No ID</button>
-                    <button type="button" class="reason-button" onclick="selectReason('Safety Issue')">Safety Issue</button>
+                    <button type="button" class="reason-button" onclick="selectReason('Safety Issue')">Safety
+                        Issue</button>
                     <button type="button" class="reason-button" onclick="selectReason('Other')">Other</button>
                 </div>
-                
+
                 <!-- Hidden input to store the selected reason -->
                 <input type="hidden" id="reason" name="reason" required>
-                               
-                
+
+
                 <label for="comments">Comments:</label>
                 <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
 
