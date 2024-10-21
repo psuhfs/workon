@@ -115,6 +115,7 @@
 
             console.log('Form Data:', formData); // Print form data to console
         }
+        window.onload = fetchEmployees;
 
         function selectReason(reason) {
             // Set the value of the hidden input
@@ -151,8 +152,6 @@
             document.getElementById('employee-email').value = selectedOption.dataset.email || '';
         });
 
-
-        window.onload = fetchEmployees;
     </script>
 </head>
 
