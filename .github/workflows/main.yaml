@@ -1,0 +1,20 @@
+on: 
+  push:
+    branches:
+      - main
+
+name: 🚀 Deploy Website on Push
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get Latest Code
+      uses: actions/checkout@v4
+    
+    - name: 📂 Sync Files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: 82.180.143.190
+        username: ${{ secrets.ftp_username }}
+        password: ${{ secrets.ftp_password }} 
