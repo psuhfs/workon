@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'timestamp' => date('Y-m-d H:i:s') // Add timestamp for tracking
     ];
 
-    $filename = 'data.js'; // Data file location
+    $filename = '/data.js'; // Data file location
 
     // Check if data.js exists and prepare content
     if (file_exists($filename)) {
