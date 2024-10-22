@@ -19,12 +19,12 @@
         async function fetchEmployees() {
             try {
                 const response = await fetch(
-                    'https://www7.whentowork.com/cgi-bin/w2wG3.dll/api/EmployeeList?key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D'
+                    'https://www7.whentowork.com/cgi-bin/w2wG3.dll/api/EmployeeList?key=${{secrets.W2W_API}}'
                 );
                 const data = await response.json();
                 allEmployees = data.EmployeeList; // Store all employees globally
 
-                populateDropdown(allEmployees); // Populate the dropdown initially
+                populateDropdown(allEmployees); // Populate the dropdown initiallys
             } catch (error) {
                 console.error('Error fetching employee data:', error);
             }
@@ -51,6 +51,7 @@
             );
             populateDropdown(filteredEmployees); // Repopulate the dropdown with filtered results
         }
+        window.onload = fetchEmployees;
 
         // Function to fetch and display shifts for the selected employee and date
         async function fetchShifts() {
@@ -115,7 +116,6 @@
 
             console.log('Form Data:', formData); // Print form data to console
         }
-        window.onload = fetchEmployees;
 
         function selectReason(reason) {
             // Set the value of the hidden input
