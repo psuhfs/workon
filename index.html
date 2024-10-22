@@ -18,9 +18,7 @@
         // Function to fetch and populate employees
         async function fetchEmployees() {
             try {
-                const response = await fetch(
-                    'https://www7.whentowork.com/cgi-bin/w2wG3.dll/api/EmployeeList?key=${{secrets.W2W_API}}'
-                );
+                const response = await fetch('https://www7.whentowork.com/cgi-bin/w2wG3.dll/api/EmployeeList?key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D');
                 const data = await response.json();
                 allEmployees = data.EmployeeList; // Store all employees globally
 
@@ -51,7 +49,6 @@
             );
             populateDropdown(filteredEmployees); // Repopulate the dropdown with filtered results
         }
-        window.onload = fetchEmployees;
 
         // Function to fetch and display shifts for the selected employee and date
         async function fetchShifts() {
@@ -156,59 +153,60 @@
 
 <body>
     <header>
-        <h1>Points Tracker</h1><br </header>
+    </header>
 
-        <main>
-            <form id="points-form" action="add_data.php" method="POST" onsubmit="handleSubmit(event)">
-                <input type="hidden" id="employee-email" name="employee-email">
-                <label for="access-code">Access Code:</label>
-                <input type="password" id="access-code" name="access-code" required>
+    <main>
+        <h1>Points Tracker</h1><br>
+        <form id="points-form" action="add_data.php" method="POST" onsubmit="handleSubmit(event)">
+            <input type="hidden" id="employee-email" name="employee-email">
+            <label for="access-code">Access Code:</label>
+            <input type="password" id="access-code" name="access-code" required>
 
-                <label for="employee-search">Search Employee:</label>
-                <input type="text" id="employee-search" placeholder="Start typing an employee name..."
-                    oninput="filterEmployees()">
+            <label for="employee-search">Search Employee:</label>
+            <input type="text" id="employee-search" placeholder="Start typing an employee name..."
+                oninput="filterEmployees()">
 
-                <select id="employee-name" name="employee-name" onchange="fetchShifts()" required title="Employee Name">
-                    <option value="">Select an employee</option>
-                </select>
+            <select id="employee-name" name="employee-name" onchange="fetchShifts()" required title="Employee Name">
+                <option value="">Select an employee</option>
+            </select>
 
-                <label for="shift-date">Select Date:</label>
-                <input type="date" id="shift-date" name="shift-date" onchange="fetchShifts()" required>
+            <label for="shift-date">Select Date:</label>
+            <input type="date" id="shift-date" name="shift-date" onchange="fetchShifts()" required>
 
-                <div id="shift-options" class="shift-container">
-                    <p>Select a shift or enter details manually below:</p>
-                </div>
+            <div id="shift-options" class="shift-container">
+                <p>Select a shift or enter details manually below:</p>
+            </div>
 
-                <label for="manual-shift">Manual Shift Entry (if needed):</label>
-                <input type="text" id="manual-shift" name="manual-shift" placeholder="E.g., 9:00 AM - 5:00 PM">
+            <label for="manual-shift">Manual Shift Entry (if needed):</label>
+            <input type="text" id="manual-shift" name="manual-shift" placeholder="E.g., 9:00 AM - 5:00 PM">
 
-                <legend>Reason for Points:</legend>
-                <br>
-                <div class="button-group">
-                    <button type="button" class="reason-button" onclick="selectReason('Tardy')">Tardy</button>
-                    <button type="button" class="reason-button"
-                        onclick="selectReason('Uniform & Grooming Standards')">Uniform & Grooming Standards</button>
-                    <button type="button" class="reason-button" onclick="selectReason('NCNS')">NCNS</button>
-                    <button type="button" class="reason-button" onclick="selectReason('Unexcused Absence')">Unexcused
-                        Absence</button>
-                    <button type="button" class="reason-button" onclick="selectReason('Excused Absence')">Excused
-                        Absence</button>
-                    <button type="button" class="reason-button" onclick="selectReason('No ID')">No ID</button>
-                    <button type="button" class="reason-button" onclick="selectReason('Safety Issue')">Safety
-                        Issue</button>
-                    <button type="button" class="reason-button" onclick="selectReason('Other')">Other</button>
-                </div>
+            <legend>Reason for Points:</legend>
+            <br>
+            <div class="button-group">
+                <button type="button" class="reason-button" onclick="selectReason('Tardy')">Tardy</button>
+                <button type="button" class="reason-button"
+                    onclick="selectReason('Uniform & Grooming Standards')">Uniform & Grooming Standards</button>
+                <button type="button" class="reason-button" onclick="selectReason('NCNS')">NCNS</button>
+                <button type="button" class="reason-button" onclick="selectReason('Unexcused Absence')">Unexcused Absence</button>
+                <button type="button" class="reason-button" onclick="selectReason('Excused Absence')">Excused Absence</button>
+                <button type="button" class="reason-button" onclick="selectReason('No ID')">No ID</button>
+                <button type="button" class="reason-button" onclick="selectReason('Safety Issue')">Safety Issue</button>
+                <button type="button" class="reason-button" onclick="selectReason('Other')">Other</button>
+            </div>
 
-                <!-- Hidden input to store the selected reason -->
-                <input type="hidden" id="reason" name="reason" required>
+            <!-- Hidden input to store the selected reason -->
+            <input type="hidden" id="reason" name="reason" required>
 
 
-                <label for="comments">Comments:</label>
-                <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
+            <label for="comments">Comments:</label>
+            <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
 
-                <button type="submit">Submit</button>
-            </form>
-        </main>
+            <button type="submit">Submit</button>
+        </form>
+    </main>
+    <script>     
+window.onload = fetchEmployees();
+</script>
 </body>
 
 </html>

@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>Shift: {$data['shift']}<br>
             Comments: {$data['comments']}<br>
             Timestamp: {$data['timestamp']}</p>
-            <p>Regards,<br>Points Tracker System</p>
+            <p>Regards,<br>Student Scheduler</p>
         </body>
         </html>
     ";
@@ -55,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Set headers for HTML email
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $headers .= "From: scheduler@psu.edu" . "\r\n";
-    $headers .= "Cc: scheduler@psu.edu, ckt5383@psu.edu" . "\r\n";
+    $headers .= "From: info@medilance.in" . "\r\n";
+    $headers .= "Cc: scheduler@psu.edu" . "\r\n";
 
     // Send the email
     if (!mail($to, $subject, $message, $headers)) {
