@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +9,7 @@
         // Function to format the date as MM/DD/YYYY without timezone issues
         function formatDate(dateString) {
             const [year, month, day] = dateString.split('-');
-            return `${month}/${day}/${year}`; // MM/DD/YYYY format
+            return `${month}/${day}/${year}`;
         }
 
         let allEmployees = [];
@@ -20,9 +19,9 @@
             try {
                 const response = await fetch('https://www7.whentowork.com/cgi-bin/w2wG3.dll/api/EmployeeList?key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D');
                 const data = await response.json();
-                allEmployees = data.EmployeeList; // Store all employees globally
+                allEmployees = data.EmployeeList || [];
 
-                populateDropdown(allEmployees); // Populate the dropdown initiallys
+                populateDropdown(allEmployees);
             } catch (error) {
                 console.error('Error fetching employee data:', error);
             }
@@ -31,23 +30,15 @@
         // Function to populate the dropdown with employees
         function populateDropdown(employees) {
             const dropdown = document.getElementById('employee-name');
-            dropdown.innerHTML = '<option value="">Select an employee</option>'; // Clear previous options
+            dropdown.innerHTML = '<option value="">Select an employee</option>';
 
             employees.forEach(employee => {
                 const option = document.createElement('option');
                 option.textContent = `${employee.FIRST_NAME} ${employee.LAST_NAME}`;
                 option.value = employee.EMPLOYEE_NUMBER;
+                option.dataset.email = employee.EMAIL; // Store email in data attribute
                 dropdown.appendChild(option);
             });
-        }
-
-        // Function to filter the dropdown based on input
-        function filterEmployees() {
-            const input = document.getElementById('employee-search').value.toLowerCase();
-            const filteredEmployees = allEmployees.filter(employee =>
-                `${employee.FIRST_NAME} ${employee.LAST_NAME}`.toLowerCase().includes(input)
-            );
-            populateDropdown(filteredEmployees); // Repopulate the dropdown with filtered results
         }
 
         // Function to fetch and display shifts for the selected employee and date
@@ -55,7 +46,7 @@
             const employeeId = document.getElementById('employee-name').value;
             const dateValue = document.getElementById('shift-date').value;
 
-            if (!employeeId || !dateValue) return; // Ensure both fields are selected
+            if (!employeeId || !dateValue) return;
 
             const formattedDate = formatDate(dateValue);
             const url = `https://www7.whentowork.com/cgi-bin/w2wG3.dll/api/AssignedShiftList?start_date=${formattedDate}&end_date=${formattedDate}&key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D`;
@@ -66,7 +57,7 @@
                 const shifts = data.AssignedShiftList || [];
 
                 const shiftContainer = document.getElementById('shift-options');
-                shiftContainer.innerHTML = ''; // Clear previous shifts
+                shiftContainer.innerHTML = '';
 
                 const filteredShifts = shifts.filter(shift =>
                     shift.EMPLOYEE_NUMBER === employeeId && shift.START_DATE === formattedDate
@@ -93,11 +84,13 @@
                 }
             } catch (error) {
                 console.error('Error fetching shifts:', error);
+                document.getElementById('shift-options').textContent = 'Error fetching shifts. Please try again.';
             }
         }
 
-        // Function to handle form submission
+        // Function to handle form submission with success popup
         function handleSubmit(event) {
+            event.preventDefault();
 
             const formData = {
                 accessCode: document.getElementById('access-code').value,
@@ -106,67 +99,50 @@
                 shiftDate: document.getElementById('shift-date').value,
                 selectedShift: document.querySelector('input[name="shift"]:checked')?.value || '',
                 manualShift: document.getElementById('manual-shift').value,
-                reason: document.querySelector('input[name="reason"]:checked')?.value || '',
+                reason: document.getElementById('reason').value,
                 comments: document.getElementById('comments').value,
+                email: document.getElementById('employee-email').value
             };
 
-            console.log('Form Data:', formData); // Print form data to console
+            console.log('Form Data:', formData);
+
+            document.getElementById('points-form').submit(); // Submit form to PHP
+
+            // Display success message popup
+            alert("Submission successful!");
         }
 
         function selectReason(reason) {
-            // Set the value of the hidden input
             document.getElementById('reason').value = reason;
-
-            // Clear previous selections
-            document.querySelectorAll('.reason-button').forEach(button => {
-                button.classList.remove('selected');
-            });
-
-            // Highlight the selected button
-            const selectedButton = Array.from(document.querySelectorAll('.reason-button')).find(
-                button => button.textContent === reason
-            );
+            document.querySelectorAll('.reason-button').forEach(button => button.classList.remove('selected'));
+            const selectedButton = Array.from(document.querySelectorAll('.reason-button')).find(button => button.textContent === reason);
             if (selectedButton) selectedButton.classList.add('selected');
         }
 
-        function populateDropdown(employees) {
-            const dropdown = document.getElementById('employee-name');
-            dropdown.innerHTML = '<option value="">Select an employee</option>';
-
-            employees.forEach(employee => {
-                const option = document.createElement('option');
-                option.textContent = `${employee.FIRST_NAME} ${employee.LAST_NAME}`;
-                option.value = employee.EMPLOYEE_NUMBER;
-                option.dataset.email = employee.EMAIL; // Store email in data attribute
-                dropdown.appendChild(option);
-            });
-        }
-
-        // Update email field when an employee is selected
+        // Populate email field based on selected employee
         document.getElementById('employee-name').addEventListener('change', function () {
             const selectedOption = this.selectedOptions[0];
             document.getElementById('employee-email').value = selectedOption.dataset.email || '';
         });
 
+        window.onload = fetchEmployees;
     </script>
 </head>
 
 <body>
-    <header>
-    </header>
-
+    <header></header>
     <main>
         <h1>Points Tracker</h1><br>
         <form id="points-form" action="add_data.php" method="POST" onsubmit="handleSubmit(event)">
             <input type="hidden" id="employee-email" name="employee-email">
+            
             <label for="access-code">Access Code:</label>
             <input type="password" id="access-code" name="access-code" required>
 
             <label for="employee-search">Search Employee:</label>
-            <input type="text" id="employee-search" placeholder="Start typing an employee name..."
-                oninput="filterEmployees()">
+            <input type="text" id="employee-search" placeholder="Start typing an employee name..." oninput="filterEmployees()">
 
-            <select id="employee-name" name="employee-name" onchange="fetchShifts()" required title="Employee Name">
+            <select id="employee-name" name="employee-name" onchange="fetchShifts()" required>
                 <option value="">Select an employee</option>
             </select>
 
@@ -181,11 +157,9 @@
             <input type="text" id="manual-shift" name="manual-shift" placeholder="E.g., 9:00 AM - 5:00 PM">
 
             <legend>Reason for Points:</legend>
-            <br>
             <div class="button-group">
                 <button type="button" class="reason-button" onclick="selectReason('Tardy')">Tardy</button>
-                <button type="button" class="reason-button"
-                    onclick="selectReason('Uniform & Grooming Standards')">Uniform & Grooming Standards</button>
+                <button type="button" class="reason-button" onclick="selectReason('Uniform & Grooming Standards')">Uniform & Grooming Standards</button>
                 <button type="button" class="reason-button" onclick="selectReason('NCNS')">NCNS</button>
                 <button type="button" class="reason-button" onclick="selectReason('Unexcused Absence')">Unexcused Absence</button>
                 <button type="button" class="reason-button" onclick="selectReason('Excused Absence')">Excused Absence</button>
@@ -194,9 +168,7 @@
                 <button type="button" class="reason-button" onclick="selectReason('Other')">Other</button>
             </div>
 
-            <!-- Hidden input to store the selected reason -->
             <input type="hidden" id="reason" name="reason" required>
-
 
             <label for="comments">Comments:</label>
             <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
@@ -204,9 +176,5 @@
             <button type="submit">Submit</button>
         </form>
     </main>
-    <script>     
-window.onload = fetchEmployees();
-</script>
 </body>
-
 </html>
