@@ -6,158 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Points Tracker</title>
     <link rel="stylesheet" href="styles.css">
-    <script>
-        const validAccessCodes = ["abg6200", "ckt5383"]; // Array for valid access codes
-
-        // Function to show the rest of the form if access code is valid
-        function validateAccessCode() {
-            const accessCode = document.getElementById("access-code").value;
-            const formContent = document.getElementById("form-content");
-
-            if (validAccessCodes.includes(accessCode)) {
-                formContent.style.display = "block";
-            } else {
-                formContent.style.display = "none";
-            }
-        }
-
-        // Function to format the date as MM/DD/YYYY without timezone issues
-        function formatDate(dateString) {
-            const [year, month, day] = dateString.split('-');
-            return `${month}/${day}/${year}`;
-        }
-
-        let allEmployees = [];
-
-        // Function to fetch and populate employees
-        async function fetchEmployees() {
-            try {
-                const response = await fetch('https://www7.whentowork.com/cgi-bin/w2wG3.dll/api/EmployeeList?key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D');
-                const data = await response.json();
-                allEmployees = data.EmployeeList || [];
-                populateDropdown(allEmployees);
-            } catch (error) {
-                console.error('Error fetching employee data:', error);
-            }
-        }
-
-        // Function to populate the dropdown with employees
-        function populateDropdown(employees) {
-            const dropdown = document.getElementById('employee-name');
-            dropdown.innerHTML = '<option value="">Select an employee</option>';
-
-            employees.forEach(employee => {
-                const option = document.createElement('option');
-                option.textContent = `${employee.FIRST_NAME} ${employee.LAST_NAME}`;
-                option.value = employee.EMPLOYEE_NUMBER;
-                option.dataset.email = employee.EMAIL;
-                dropdown.appendChild(option);
-            });
-        }
-
-        // Function to filter the dropdown based on input
-        function filterEmployees() {
-            const input = document.getElementById('employee-search').value.toLowerCase();
-            const filteredEmployees = allEmployees.filter(employee =>
-                `${employee.FIRST_NAME} ${employee.LAST_NAME}`.toLowerCase().includes(input)
-            );
-            populateDropdown(filteredEmployees);
-        }
-
-        // Function to fetch and display shifts for the selected employee and date
-        async function fetchShifts() {
-            const employeeId = document.getElementById('employee-name').value;
-            const dateValue = document.getElementById('shift-date').value;
-
-            if (!employeeId || !dateValue) return;
-
-            const formattedDate = formatDate(dateValue);
-            const url = `https://www7.whentowork.com/cgi-bin/w2wG3.dll/api/AssignedShiftList?start_date=${formattedDate}&end_date=${formattedDate}&key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                const shifts = data.AssignedShiftList || [];
-
-                const shiftContainer = document.getElementById('shift-options');
-                shiftContainer.innerHTML = '';
-
-                const filteredShifts = shifts.filter(shift =>
-                    shift.EMPLOYEE_NUMBER === employeeId && shift.START_DATE === formattedDate
-                );
-
-                if (filteredShifts.length > 0) {
-                    filteredShifts.forEach(shift => {
-                        const radio = document.createElement('input');
-                        radio.type = 'radio';
-                        radio.id = shift.SHIFT_ID;
-                        radio.name = 'shift';
-                        radio.value = `${shift.START_TIME} - ${shift.END_TIME}`;
-
-                        const label = document.createElement('label');
-                        label.htmlFor = shift.SHIFT_ID;
-                        label.textContent = `${shift.START_TIME} - ${shift.END_TIME} (${shift.POSITION_NAME})`;
-
-                        shiftContainer.appendChild(radio);
-                        shiftContainer.appendChild(label);
-                        shiftContainer.appendChild(document.createElement('br'));
-                    });
-                } else {
-                    shiftContainer.textContent = 'No shifts found. Enter shift details below:';
-                }
-            } catch (error) {
-                console.error('Error fetching shifts:', error);
-                document.getElementById('shift-options').textContent = 'Error fetching shifts. Please try again.';
-            }
-        }
-
-        // Function to handle form submission with success popup
-        function handleSubmit(event) {
-            event.preventDefault();
-
-            const employeeEmail = document.getElementById('employee-name').selectedOptions[0]?.dataset.email || '';
-
-            const formData = {
-                accessCode: document.getElementById('access-code').value,
-                employeeName: document.getElementById('employee-name').selectedOptions[0]?.text || '',
-                employeeId: document.getElementById('employee-name').value,
-                shiftDate: document.getElementById('shift-date').value,
-                selectedShift: document.querySelector('input[name="shift"]:checked')?.value || '',
-                manualShift: document.getElementById('manual-shift').value,
-                reason: document.getElementById('reason').value,
-                comments: document.getElementById('comments').value,
-                email: employeeEmail
-            };
-
-            // Print form data side by side in the console
-            console.log('Form Data:', JSON.stringify(formData));
-
-            // Submit form via AJAX or show success message here
-            alert("Submission successful!");
-        }
-
-        function selectReason(reason) {
-            document.getElementById('reason').value = reason;
-            document.querySelectorAll('.reason-button').forEach(button => button.classList.remove('selected'));
-            const selectedButton = Array.from(document.querySelectorAll('.reason-button')).find(button => button.textContent === reason);
-            if (selectedButton) selectedButton.classList.add('selected');
-        }
-
-        // Add event listeners after DOM loads
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("employee-name").addEventListener("change", fetchShifts);
-            document.getElementById("employee-search").addEventListener("input", filterEmployees);
-            document.getElementById("access-code").addEventListener("blur", validateAccessCode);
-            fetchEmployees();
-        });
-    </script>
 </head>
 
 <body>
     <header></header>
     <main>
         <h1>Points Tracker</h1><br>
-        <form id="points-form" action="add_data.php" method="POST" onsubmit="handleSubmit(event)">
+        <form id="points-form" onsubmit="handleSubmit(event)">
             <label for="access-code">Access Code:</label>
             <input type="password" id="access-code" name="access-code" required>
 
@@ -201,10 +56,11 @@
                 <label for="comments">Comments:</label>
                 <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
 
-                <button type="submit">Submit</button>
+                <button type="submit" id="form-submit">Submit</button>
             </div>
         </form>
     </main>
 </body>
+<script src="script.js"></script>
 
 </html>
