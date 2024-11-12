@@ -1,11 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Points Tracker</title>
     <link rel="stylesheet" href="styles.css">
     <script>
+        const validAccessCodes = ["abg6200", "ckt5383"]; // Array for valid access codes
+
+        // Function to show the rest of the form if access code is valid
+        function validateAccessCode() {
+            const accessCode = document.getElementById("access-code").value;
+            const formContent = document.getElementById("form-content");
+
+            if (validAccessCodes.includes(accessCode)) {
+                formContent.style.display = "block";
+            } else {
+                formContent.style.display = "none";
+            }
+        }
+
         // Function to format the date as MM/DD/YYYY without timezone issues
         function formatDate(dateString) {
             const [year, month, day] = dateString.split('-');
@@ -20,7 +35,6 @@
                 const response = await fetch('https://www7.whentowork.com/cgi-bin/w2wG3.dll/api/EmployeeList?key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D');
                 const data = await response.json();
                 allEmployees = data.EmployeeList || [];
-
                 populateDropdown(allEmployees);
             } catch (error) {
                 console.error('Error fetching employee data:', error);
@@ -36,9 +50,18 @@
                 const option = document.createElement('option');
                 option.textContent = `${employee.FIRST_NAME} ${employee.LAST_NAME}`;
                 option.value = employee.EMPLOYEE_NUMBER;
-                option.dataset.email = employee.EMAIL; // Store email in data attribute
+                option.dataset.email = employee.EMAIL;
                 dropdown.appendChild(option);
             });
+        }
+
+        // Function to filter the dropdown based on input
+        function filterEmployees() {
+            const input = document.getElementById('employee-search').value.toLowerCase();
+            const filteredEmployees = allEmployees.filter(employee =>
+                `${employee.FIRST_NAME} ${employee.LAST_NAME}`.toLowerCase().includes(input)
+            );
+            populateDropdown(filteredEmployees);
         }
 
         // Function to fetch and display shifts for the selected employee and date
@@ -92,23 +115,24 @@
         function handleSubmit(event) {
             event.preventDefault();
 
+            const employeeEmail = document.getElementById('employee-name').selectedOptions[0]?.dataset.email || '';
+
             const formData = {
                 accessCode: document.getElementById('access-code').value,
-                employeeName: document.getElementById('employee-name').selectedOptions[0].text,
+                employeeName: document.getElementById('employee-name').selectedOptions[0]?.text || '',
                 employeeId: document.getElementById('employee-name').value,
                 shiftDate: document.getElementById('shift-date').value,
                 selectedShift: document.querySelector('input[name="shift"]:checked')?.value || '',
                 manualShift: document.getElementById('manual-shift').value,
                 reason: document.getElementById('reason').value,
                 comments: document.getElementById('comments').value,
-                email: document.getElementById('employee-email').value
+                email: employeeEmail
             };
 
-            console.log('Form Data:', formData);
+            // Print form data side by side in the console
+            console.log('Form Data:', JSON.stringify(formData));
 
-            document.getElementById('points-form').submit(); // Submit form to PHP
-
-            // Display success message popup
+            // Submit form via AJAX or show success message here
             alert("Submission successful!");
         }
 
@@ -119,13 +143,13 @@
             if (selectedButton) selectedButton.classList.add('selected');
         }
 
-        // Populate email field based on selected employee
-        document.getElementById('employee-name').addEventListener('change', function () {
-            const selectedOption = this.selectedOptions[0];
-            document.getElementById('employee-email').value = selectedOption.dataset.email || '';
+        // Add event listeners after DOM loads
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("employee-name").addEventListener("change", fetchShifts);
+            document.getElementById("employee-search").addEventListener("input", filterEmployees);
+            document.getElementById("access-code").addEventListener("blur", validateAccessCode);
+            fetchEmployees();
         });
-
-        window.onload = fetchEmployees;
     </script>
 </head>
 
@@ -134,47 +158,53 @@
     <main>
         <h1>Points Tracker</h1><br>
         <form id="points-form" action="add_data.php" method="POST" onsubmit="handleSubmit(event)">
-            <input type="hidden" id="employee-email" name="employee-email">
-            
             <label for="access-code">Access Code:</label>
             <input type="password" id="access-code" name="access-code" required>
 
-            <label for="employee-search">Search Employee:</label>
-            <input type="text" id="employee-search" placeholder="Start typing an employee name..." oninput="filterEmployees()">
+            <!-- Form content to be shown only if access code is valid -->
+            <div id="form-content" style="display:none;">
+                <label for="employee-search">Search Employee:</label>
+                <input type="text" id="employee-search" placeholder="Start typing an employee name...">
 
-            <select id="employee-name" name="employee-name" onchange="fetchShifts()" required>
-                <option value="">Select an employee</option>
-            </select>
+                <select id="employee-name" name="employee-name" required>
+                    <option value="">Select an employee</option>
+                </select>
 
-            <label for="shift-date">Select Date:</label>
-            <input type="date" id="shift-date" name="shift-date" onchange="fetchShifts()" required>
+                <label for="shift-date">Select Date:</label>
+                <input type="date" id="shift-date" name="shift-date" required>
 
-            <div id="shift-options" class="shift-container">
-                <p>Select a shift or enter details manually below:</p>
+                <div id="shift-options" class="shift-container">
+                    <p>Select a shift or enter details manually below:</p>
+                </div>
+
+                <label for="manual-shift">Manual Shift Entry (if needed):</label>
+                <input type="text" id="manual-shift" name="manual-shift" placeholder="E.g., 9:00 AM - 5:00 PM">
+
+                <legend>Reason for Points:</legend>
+                <div class="button-group">
+                    <button type="button" class="reason-button" onclick="selectReason('Tardy')">Tardy</button>
+                    <button type="button" class="reason-button"
+                        onclick="selectReason('Uniform & Grooming Standards')">Uniform & Grooming Standards</button>
+                    <button type="button" class="reason-button" onclick="selectReason('NCNS')">NCNS</button>
+                    <button type="button" class="reason-button" onclick="selectReason('Unexcused Absence')">Unexcused
+                        Absence</button>
+                    <button type="button" class="reason-button" onclick="selectReason('Excused Absence')">Excused
+                        Absence</button>
+                    <button type="button" class="reason-button" onclick="selectReason('No ID')">No ID</button>
+                    <button type="button" class="reason-button" onclick="selectReason('Safety Issue')">Safety
+                        Issue</button>
+                    <button type="button" class="reason-button" onclick="selectReason('Other')">Other</button>
+                </div>
+
+                <input type="hidden" id="reason" name="reason" required>
+
+                <label for="comments">Comments:</label>
+                <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
+
+                <button type="submit">Submit</button>
             </div>
-
-            <label for="manual-shift">Manual Shift Entry (if needed):</label>
-            <input type="text" id="manual-shift" name="manual-shift" placeholder="E.g., 9:00 AM - 5:00 PM">
-
-            <legend>Reason for Points:</legend>
-            <div class="button-group">
-                <button type="button" class="reason-button" onclick="selectReason('Tardy')">Tardy</button>
-                <button type="button" class="reason-button" onclick="selectReason('Uniform & Grooming Standards')">Uniform & Grooming Standards</button>
-                <button type="button" class="reason-button" onclick="selectReason('NCNS')">NCNS</button>
-                <button type="button" class="reason-button" onclick="selectReason('Unexcused Absence')">Unexcused Absence</button>
-                <button type="button" class="reason-button" onclick="selectReason('Excused Absence')">Excused Absence</button>
-                <button type="button" class="reason-button" onclick="selectReason('No ID')">No ID</button>
-                <button type="button" class="reason-button" onclick="selectReason('Safety Issue')">Safety Issue</button>
-                <button type="button" class="reason-button" onclick="selectReason('Other')">Other</button>
-            </div>
-
-            <input type="hidden" id="reason" name="reason" required>
-
-            <label for="comments">Comments:</label>
-            <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
-
-            <button type="submit">Submit</button>
         </form>
     </main>
 </body>
+
 </html>
