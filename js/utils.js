@@ -1,7 +1,7 @@
 const ACCESS_CODE = "ACCESS_CODE"
 
 // TODO: move it to a secure location
-const validAccessCodes = ["abg6200", "ckt5383"]
+const validAccessCodes = ["abg6200", "ckt5383", "mby5247", "ijr5083"]
 
 function getCookie(name) {
   const cookies = document.cookie.split("; ")
