@@ -149,7 +149,7 @@ function selectReason(button) {
 
   document.getElementById("reason").value = button.innerText
 
-  const points = button.getAttribute("data-points")
+  const points = button.getAttribute("points")
   if (points) {
     document.getElementById("selected-points").value = points
   }
