@@ -9,6 +9,11 @@ function handleSearchEmployee(employeeResponseData) {
 
   let employeeList = employeeResponseData["EmployeeList"]
 
+  function toggleEmployeeIdField(show) {
+    const employeeIdContainer = document.getElementById("employee-id-container")
+    employeeIdContainer.style.display = show ? "block" : "none"
+  }
+
   document.getElementById(employeeSearchId).addEventListener("input", function () {
     const searchValue = this.value.toLowerCase()
     const resultsContainer = document.getElementById("employee-results")
@@ -30,6 +35,11 @@ function handleSearchEmployee(employeeResponseData) {
           employeeSearchElement.value = fullName
           employeeSearchElement.dataset.employeeId = employee.EMPLOYEE_NUMBER
           employeeSearchElement.dataset.emails = employee.EMAILS
+          if (!employee.EMPLOYEE_NUMBER) {
+            toggleEmployeeIdField(true)
+          } else {
+            toggleEmployeeIdField(false)
+          }
 
           resultsContainer.innerHTML = ""
         })
@@ -99,8 +109,15 @@ async function searchEmployee() {
 
       let employeeSearch = document.getElementById(employeeSearchId).dataset
       let employeeId = employeeSearch.employeeId
+      if (!employeeId) {
+        let employeeIdInput = document.getElementById("employee-id-container")
+        if (!employeeIdInput.value) {
+          alert("Please enter an employee ID")
+          return
+        }
+        employeeId = employeeIdInput.value
+      }
 
-      console.log("Employee ID:", employeeId)
       displayShifts(shiftResponseData || [], employeeId, formattedDate)
     })
   } catch (error) {
@@ -133,6 +150,7 @@ function displayShifts(data, employeeId, date) {
         let employeeSearchElement = document.getElementById(employeeSearchId)
         employeeSearchElement.dataset.shiftTime = textValue
         radio.style.backgroundColor = "#007BFF"
+        radio.style.color = "#fff"
       })
     })
   } else {
@@ -159,10 +177,20 @@ async function handleSubmit() {
   let points = document.getElementById("selected-points").value
   const employee = document.getElementById(employeeSearchId)
 
+  let employeeId = employee.dataset.employeeId
+  if (!employeeId) {
+    let employeeIdInput = document.getElementById("employee-id-container")
+    if (!employeeIdInput.value) {
+      alert("Please enter an employee ID")
+      return
+    }
+    employeeId = employeeIdInput.value
+  }
+
   const formData = {
     accessCode: getCookie(ACCESS_CODE),
     employeeName: employee.value,
-    employeeId: employee.dataset.employeeId,
+    employeeId: employeeId,
     shiftDate: document.getElementById("shift-date").value,
     selectedShift: employee.dataset.shiftTime,
     manualShift: document.getElementById("manual-shift").value,

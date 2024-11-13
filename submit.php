@@ -36,7 +36,24 @@ $stmt->bind_param("ssisssssss",
 
 // Execute the statement
 if ($stmt->execute()) {
-    echo json_encode(["status" => "success", "message" => "Data inserted successfully"]);
+    $to = $data['email'];
+    $subject = "Shift Update Notification";
+    $message = "Hello, " . $data['employeeName'] . ",\n\nyou have received points. Find attached details:\n";
+    $message .= "Shift Date: " . $data['shiftDate'] . "\n";
+    $message .= "Selected Shift: " . $data['selectedShift'] . "\n";
+    $message .= "Reason: " . $data['reason'] . "\n";
+    $message .= "Comments: " . $data['comments'] . "\n\n";
+    $message .= "Points: " . $data['points'] . "\n\n";
+    $message .= "Thank you, \nStudent Scheduler\n";
+
+    $headers = "From: info@medilance.in";
+
+    // Send the email
+    if (mail($to, $subject, $message, $headers)) {
+        echo json_encode(["status" => "success", "message" => "Data inserted and email sent successfully"]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Data inserted but failed to send email"]);
+    }
 } else {
     echo json_encode(["status" => "error", "message" => "Error inserting data: " . $stmt->error]);
 }
