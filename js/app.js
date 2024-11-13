@@ -1,7 +1,10 @@
 const BASE_URL = "https://www7.whentowork.com";
 
+// HTML IDs
+const employeeSearchId = "employee-search";
+const selectedPointsId = "selected-points";
+
 function handleSearchEmployee(employeeResponseData) {
-    const employeeSearchId = "employee-search";
     let employeeSearchElement = document.getElementById(employeeSearchId);
 
     let employeeList = employeeResponseData["EmployeeList"];
@@ -26,6 +29,7 @@ function handleSearchEmployee(employeeResponseData) {
                 resultItem.addEventListener("click", function () {
                     employeeSearchElement.value = fullName;
                     employeeSearchElement.dataset.employeeId = employee.EMPLOYEE_NUMBER;
+                    employeeSearchElement.dataset.emails = employee.EMAILS;
 
                     resultsContainer.innerHTML = '';
                 });
@@ -90,7 +94,6 @@ async function searchEmployee() {
 
             const responseShifts = await fetch(`${BASE_URL}/cgi-bin/w2wG3.dll/api/AssignedShiftList?start_date=${formattedDate}&end_date=${formattedDate}&key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D`);
             const shiftResponseData = await responseShifts.json();
-            const employeeSearchId = "employee-search";
 
             let employeeSearch = document.getElementById(employeeSearchId).dataset;
             let employeeId = employeeSearch.employeeId;
@@ -123,10 +126,16 @@ function displayShifts(data, employeeId, date) {
             radio.type = "button";
             radio.id = shift.SHIFT_ID;
             radio.name = "shift";
-            radio.value = `${shift.START_TIME} - ${shift.END_TIME} (${shift.POSITION_NAME})`;
+            let textValue = `${shift.START_TIME} - ${shift.END_TIME} (${shift.POSITION_NAME})`;
+            radio.value = textValue;
 
             shiftItem.appendChild(radio);
             shiftContainer.appendChild(shiftItem);
+            document.getElementById(shift.SHIFT_ID).addEventListener("click", function () {
+                let employeeSearchElement = document.getElementById(employeeSearchId);
+                employeeSearchElement.dataset.shiftTime = textValue;
+                radio.style.backgroundColor = "#007BFF";
+            });
         });
 
     } else {
@@ -145,6 +154,45 @@ function selectReason(element) {
         document.querySelectorAll(".reason-button")
     ).find((button) => button.textContent === reason);
     if (selectedButton) selectedButton.classList.add("selected");
+
+    document.getElementById(selectedPointsId).value = element.dataset.points;
+}
+
+async function handleSubmit(element) {
+    // TODO: fix depricated
+    element.preventDefault();
+
+    let points = document.getElementById("selected-points").value;
+    const employee = document.getElementById(employeeSearchId);
+
+    const formData = {
+        accessCode: getCookie(ACCESS_CODE),
+        employeeName: employee.value,
+        employeeId: employee.dataset.employeeId,
+        shiftDate: document.getElementById("shift-date").value,
+        selectedShift: employee.dataset.shiftTime,
+        manualShift: document.getElementById("manual-shift").value,
+        reason: document.getElementById("reason").value,
+        comments: document.getElementById("comments").value,
+        email: employee.dataset.emails,
+        points: points,
+    };
+
+    try {
+        const response = await fetch("/submit.php", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(formData),
+        });
+
+        if (response.ok) {
+            alert("Submission successful!");
+        } else {
+            console.error("Submission failed:", response.statusText);
+        }
+    } catch (error) {
+        console.error("Error submitting form:", error);
+    }
 }
 
 // TODO: drop this
