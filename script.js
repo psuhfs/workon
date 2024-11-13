@@ -24,6 +24,7 @@ async function fetchEmployees() {
   }
 }
 
+
 function populateDropdown(employees) {
   const dropdown = document.getElementById("employee-name");
   dropdown.innerHTML = '<option value="">Select an employee</option>';
@@ -34,6 +35,13 @@ function populateDropdown(employees) {
     option.dataset.email = employee.EMAIL;
     dropdown.appendChild(option);
   });
+}
+function filterEmployees() {
+    const input = document.getElementById('employee-search').value.toLowerCase();
+    const filteredEmployees = allEmployees.filter(employee =>
+        ${employee.FIRST_NAME} ${employee.LAST_NAME}.toLowerCase().includes(input)
+    );
+    populateDropdown(filteredEmployees);
 }
 
 async function fetchShifts() {
