@@ -1,67 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Points Tracker</title>
-    <link rel="stylesheet" href="../styles/styles.css">
-</head>
+    <link rel="stylesheet" href="../styles/styles.css" />
+  </head>
 
-<body>
-<header></header>
-<main>
-    <h1>Points Tracker</h1><br>
-    <form id="points-form" onsubmit="return false;">
-        <div id="form-content" style="display:none;">
-            <label for="employee-search">Search Employee:</label>
-            <input type="text" id="employee-search" placeholder="Start typing an employee name...">
-            <div id="employee-results" class="dropdown-results"></div>
+  <body>
+    <header></header>
+    <main>
+      <h1>Points Tracker</h1>
+      <br />
+      <form id="points-form" onsubmit="return false;">
+        <div id="form-content" style="display: none">
+          <label for="employee-search">Search Employee:</label>
+          <input type="text" id="employee-search" placeholder="Start typing an employee name..." />
+          <div id="employee-results" class="dropdown-results"></div>
 
-            <label for="shift-date">Select Date:</label>
-            <input type="date" id="shift-date" name="shift-date" required>
+          <label for="shift-date">Select Date:</label>
+          <input type="date" id="shift-date" name="shift-date" required />
 
-            <div id="shift-options" class="shift-container">
-                <p>Select a shift or enter details manually below:</p>
-            </div>
+          <div id="shift-options" class="shift-container">
+            <p>Select a shift or enter details manually below:</p>
+          </div>
 
-            <label for="manual-shift">Manual Shift Entry (if needed):</label>
-            <input type="text" id="manual-shift" name="manual-shift" placeholder="E.g., 9:00 AM - 5:00 PM">
+          <label for="manual-shift">Manual Shift Entry (if needed):</label>
+          <input type="text" id="manual-shift" name="manual-shift" placeholder="E.g., 9:00 AM - 5:00 PM" />
 
-            <legend>Reason for Points:</legend>
-            <div class="button-group">
-                <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">Tardy</button>
+          <legend>Reason for Points:</legend>
+          <div class="button-group">
+            <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">Tardy</button>
 
-                <button type="button" class="reason-button" data-points="1" onclick="selectReason(this)">
-                    Uniform & Grooming Standards
-                </button>
-                <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">NCNS</button>
-                <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">Unexcused
-                    Absence
-                </button>
-                <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">Excused
-                    Absence
-                </button>
-                <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">No ID</button>
-                <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">
-                    Safety Issue
-                </button>
-                <button type="button" class="reason-button" onclick="selectReason(this)">Other</button>
-            </div>
+            <button type="button" class="reason-button" data-points="1" onclick="selectReason(this)">
+              Uniform & Grooming Standards
+            </button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">NCNS</button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">
+              Unexcused Absence
+            </button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">
+              Excused Absence
+            </button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">No ID</button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" data-points="1">
+              Safety Issue
+            </button>
+            <button type="button" class="reason-button" onclick="selectReason(this)">Other</button>
+          </div>
 
-            <input type="hidden" id="reason" name="reason" required>
+          <input type="hidden" id="reason" name="reason" required />
 
-            <label for="comments">Comments:</label>
-            <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
-            <input type="hidden" id="selected-points" name="selected-points" value="">
+          <label for="comments">Comments:</label>
+          <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
+          <input type="hidden" id="selected-points" name="selected-points" value="" />
 
-            <button type="submit" id="form-submit" onclick="handleSubmit()">Submit</button>
+          <button type="submit" id="form-submit" onclick="handleSubmit()">Submit</button>
         </div>
-    </form>
-</main>
-</body>
+      </form>
+    </main>
+  </body>
 
-<script src="../js/utils.js"></script>
-<script src="../js/app.js"></script>
-
+  <script src="../js/utils.js"></script>
+  <script src="../js/app.js"></script>
 </html>
