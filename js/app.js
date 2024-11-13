@@ -143,24 +143,24 @@ function displayShifts(data, employeeId, date) {
     }
 }
 
-function selectReason(element) {
-    let reason = element.outerText;
+function selectReason(button) {
+    const reasonButtons = document.querySelectorAll('.reason-button');
 
-    document.getElementById("reason").value = reason;
-    document
-        .querySelectorAll(".reason-button")
-        .forEach((button) => button.classList.remove("selected"));
-    const selectedButton = Array.from(
-        document.querySelectorAll(".reason-button")
-    ).find((button) => button.textContent === reason);
-    if (selectedButton) selectedButton.classList.add("selected");
+    reasonButtons.forEach(btn => btn.classList.remove('selected'));
 
-    document.getElementById(selectedPointsId).value = element.dataset.points;
+    button.classList.add('selected');
+
+    document.getElementById('reason').value = button.innerText;
+
+    const points = button.getAttribute('data-points');
+    if (points) {
+        document.getElementById('selected-points').value = points;
+    }
 }
 
-async function handleSubmit(element) {
+
+async function handleSubmit() {
     // TODO: fix depricated
-    element.preventDefault();
 
     let points = document.getElementById("selected-points").value;
     const employee = document.getElementById(employeeSearchId);
