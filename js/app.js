@@ -160,8 +160,6 @@ function selectReason(button) {
 
 
 async function handleSubmit() {
-    // TODO: fix depricated
-
     let points = document.getElementById("selected-points").value;
     const employee = document.getElementById(employeeSearchId);
 
