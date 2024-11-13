@@ -1,28 +1,47 @@
 <?php
-// Connect to the database
-$pdo = new PDO('mysql:host=localhost;dbname=your_db', 'username', 'password');
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// TODO: take this from env
+$tableName = "Test_Points";
+$servername = "srv917.hstgr.io";
+$username = "u426693394_hfs";
+$password = "Hfs@905870698";
+$dbname = "u426693394_hfs";
 
-// Get the JSON input
+// Create a connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check the connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Get the JSON data sent from the frontend
 $data = json_decode(file_get_contents("php://input"), true);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Insert into Points_Submissions table
-    $stmt = $pdo->prepare("
-        INSERT INTO Points_Submissions (employee_id, points, reason, time_received, shift_name, shift_time)
-        VALUES (:employee_id, :points, :reason, NOW(), :shift_name, :shift_time)
-    ");
-    $stmt->execute([
-        ':employee_id' => $data['employeeId'],
-        ':points' => $data['points'],
-        ':reason' => $data['reason'],
-        ':shift_name' => $data['selectedShift'],
-        ':shift_time' => $data['shiftDate']
-    ]);
+// Prepare and bind
+$stmt = $conn->prepare("INSERT INTO $tableName (accessCode, employeeName, employeeId, shiftDate, selectedShift, manualShift, reason, comments, email, points) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-    echo json_encode(['status' => 'success']);
+// Bind the parameters
+$stmt->bind_param("ssisssssss",
+    $data['accessCode'],
+    $data['employeeName'],
+    $data['employeeId'],
+    $data['shiftDate'],
+    $data['selectedShift'],
+    $data['manualShift'],
+    $data['reason'],
+    $data['comments'],
+    $data['email'],
+    $data['points']
+);
+
+// Execute the statement
+if ($stmt->execute()) {
+    echo json_encode(["status" => "success", "message" => "Data inserted successfully"]);
 } else {
-    http_response_code(405);
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+    echo json_encode(["status" => "error", "message" => "Error inserting data: " . $stmt->error]);
 }
+
+// Close the statement and connection
+$stmt->close();
+$conn->close();
 ?>
