@@ -32,7 +32,7 @@ $emailBody .= "<h2>HFS Student Employee Points Report</h2>";
 $emailBody .= "<h3>Entries from Past 7 Days</h3>";
 if ($pastSevenDaysResult->num_rows > 0) {
     $emailBody .= "<table border='1' cellpadding='5' cellspacing='0'>";
-    $emailBody .= "<tr><th>Access Code</th><th>Employee Name</th><th>Points</th><th>Shift Date</th><th>Reason</th><th>Comments</th></tr>";
+    $emailBody .= "<tr><th>Given By</th><th>Employee Name</th><th>Points</th><th>Shift Date</th><th>Reason</th><th>Comments</th></tr>";
     while ($row = $pastSevenDaysResult->fetch_assoc()) {
         $emailBody .= "<tr>
             <td>{$row['accessCode']}</td>
