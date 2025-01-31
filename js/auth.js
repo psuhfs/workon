@@ -19,7 +19,11 @@ async function authenticateUser() {
 
         if (response.ok) {
             console.log("Authentication successful");
-            document.location.href = "/app"; // Redirect to /app
+            console.log("Response:", response);
+            let body = await response.json();
+            document.cookie = `token=${body.token}; path=/; max-age=3600; SameSite=None; Secure`;
+            console.log(document.cookie);
+            console.log(await isAuthenticated());
         } else {
 
             let body = await response.json();
@@ -46,22 +50,22 @@ function displayError(message) {
 // Function to check if user is authenticated
 async function isAuthenticated() {
     try {
+        let token = document.cookie.split('=')[1];
+        console.log(token);
         const response = await fetch(`${BASE_URL}/auth/authenticated`, {
             method: 'POST',
-            credentials: 'include', // This ensures cookies are sent with the request
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            credentials: 'include',
         });
 
         if (response.ok) {
-            const data = await response.json();
-            return data.authenticated;
+            return true;
         } else {
             // Remove the token from cookies
             document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             // Re-initiate auth (redirect to login page or show login form)
-            document.location.href = "/"; // Assuming "/" is the login page
+            if (document.location.pathname !== "/") {
+                document.location.href = "/"; // Assuming "/" is the login page
+            }
             return false;
         }
     } catch (error) {
@@ -86,6 +90,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log("Authenticated:", authenticated);
     if (authenticated) {
         console.log("User is already authenticated");
-        document.location.href = "/app"; // Redirect to /app if already authenticated
+        // document.location.href = "/app"; // Redirect to /app if already authenticated
     }
 });

@@ -1,5 +1,3 @@
-const BASE_URL = "https://www7.whentowork.com"
-
 // HTML IDs
 const employeeSearchId = "employee-search"
 const selectedPointsId = "selected-points"
@@ -91,7 +89,12 @@ async function searchEmployee() {
 
   try {
     const responseEmployees = await fetch(
-      `${BASE_URL}/cgi-bin/w2wG3.dll/api/EmployeeList?key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D`,
+      `${BASE_URL}/workon/employees`,
+        {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body,
+        }
     )
     const employeeResponseData = await responseEmployees.json()
     handleSearchEmployee(employeeResponseData)
@@ -103,7 +106,12 @@ async function searchEmployee() {
       const formattedDate = formatDate(selectedDate)
 
       const responseShifts = await fetch(
-        `${BASE_URL}/cgi-bin/w2wG3.dll/api/AssignedShiftList?start_date=${formattedDate}&end_date=${formattedDate}&key=G042D1B58-7BA2233F1F3248279DCB30F1C5AE221D`,
+        `${BASE_URL}/shifts`,
+          {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({date: formattedDate}),
+          }
       )
       const shiftResponseData = await responseShifts.json()
 
@@ -227,6 +235,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("form-content").style.display = "block"
   } else {
     alert("Invalid access code, redirecting to auth page")
-    document.location.href = "/"
+    // document.location.href = "/"
   }
 })
