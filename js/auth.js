@@ -90,6 +90,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log("Authenticated:", authenticated);
     if (authenticated) {
         console.log("User is already authenticated");
-        // document.location.href = "/app"; // Redirect to /app if already authenticated
+        document.location.href = "/app"; // Redirect to /app if already authenticated
     }
 });
