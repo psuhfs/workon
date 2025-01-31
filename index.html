@@ -14,8 +14,11 @@
       <br />
       <form id="points-form" onsubmit="return false;">
         <label for="access-code">Access Code:</label>
-        <input type="password" id="access-code" name="access-code" required />
+        <input type="text" id="access-code" name="access-code" required />
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
       </form>
+      <div id="error-message" class="error-message" style="display: none; color: red; margin-top: 10px;"></div>
     </main>
   </body>
 
