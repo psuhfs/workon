@@ -22,8 +22,7 @@ async function authenticateUser() {
             console.log("Response:", response);
             let body = await response.json();
             document.cookie = `token=${body.token}; path=/; max-age=3600; SameSite=None; Secure`;
-            console.log(document.cookie);
-            console.log(await isAuthenticated());
+            document.location.href = "/app"; // Redirect to /app after successful authentication
         } else {
 
             let body = await response.json();
