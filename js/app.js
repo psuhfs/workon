@@ -3,6 +3,7 @@ const employeeSearchId = "employee-search"
 const selectedPointsId = "selected-points"
 
 function handleSearchEmployee(employeeResponseData) {
+  console.log("Employee data:", employeeResponseData)
   let employeeSearchElement = document.getElementById(employeeSearchId)
 
   let employeeList = employeeResponseData["EmployeeList"]
@@ -82,63 +83,60 @@ function handleSearchEmployee(employeeResponseData) {
 }
 
 async function searchEmployee() {
-  function formatDate(dateString) {
-    const [year, month, day] = dateString.split("-")
-    return `${month}/${day}/${year}`
+  try {
+    const responseEmployees = await fetch(`${BASE_URL}/workon/employees`, {
+      method: "GET",
+      headers: {"Content-Type": "application/json"},
+      credentials: "include",
+    })
+    const employeeResponseData = await responseEmployees.text()
+    console.log("Employee data:", employeeResponseData)
+    handleSearchEmployee(JSON.parse(employeeResponseData))
+  } catch (e) {
+    alert("Failed to fetch employee data: " + e)
   }
 
-  try {
-    const responseEmployees = await fetch(
-      `${BASE_URL}/workon/employees`,
-        {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body,
-        }
-    )
-    const employeeResponseData = await responseEmployees.json()
-    handleSearchEmployee(employeeResponseData)
+  document.getElementById("shift-date").addEventListener("change", async function () {
+    const selectedDate = this.value
+    console.log("Date changed to:", selectedDate)
 
-    // TODO: drop listener
-    document.getElementById("shift-date").addEventListener("change", async function () {
-      const selectedDate = this.value
-      console.log("Date changed to:", selectedDate)
-      const formattedDate = formatDate(selectedDate)
+    let employeeSearch = document.getElementById(employeeSearchId).dataset
+    let employeeId = employeeSearch.employeeId
+    if (!employeeId) {
+      let employeeIdInput = document.getElementById("employee-id-container")
+      if (!employeeIdInput.value) {
+        alert("Please enter an employee ID")
+        return
+      }
+      employeeId = employeeIdInput.value
+    }
 
-      const responseShifts = await fetch(
-        `${BASE_URL}/shifts`,
-          {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({date: formattedDate}),
-          }
-      )
-      const shiftResponseData = await responseShifts.json()
+    try {
+      const response = await fetch(`${BASE_URL}/workon/employee/${employeeId}/shifts`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        credentials: "include",
+        body: JSON.stringify({date: selectedDate}),
+      })
 
-      let employeeSearch = document.getElementById(employeeSearchId).dataset
-      let employeeId = employeeSearch.employeeId
-      if (!employeeId) {
-        let employeeIdInput = document.getElementById("employee-id-container")
-        if (!employeeIdInput.value) {
-          alert("Please enter an employee ID")
-          return
-        }
-        employeeId = employeeIdInput.value
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      displayShifts(shiftResponseData || [], employeeId, formattedDate)
-    })
-  } catch (error) {
-    alert("Failed to fetch employee data")
-  }
+      const shiftData = await response.json()
+      console.log("Shift data received:", shiftData)
+      displayShifts(shiftData, employeeId, selectedDate)
+    } catch (error) {
+      console.error("Error fetching shifts:", error)
+      alert("Failed to fetch shift data")
+    }
+  })
 }
 
-function displayShifts(data, employeeId, date) {
-  let shifts = data["AssignedShiftList"]
-
+function displayShifts(filteredShifts, employeeId, date) {
   const shiftContainer = document.getElementById("shift-options")
   shiftContainer.innerHTML = ""
-  const filteredShifts = shifts.filter((shift) => shift.EMPLOYEE_NUMBER === employeeId && shift.START_DATE === date)
+  // const filteredShifts = shifts.filter((shift) => shift.EMPLOYEE_NUMBER === employeeId && shift.START_DATE === date)
 
   if (filteredShifts.length > 0) {
     filteredShifts.forEach((shift) => {
@@ -147,14 +145,15 @@ function displayShifts(data, employeeId, date) {
 
       const radio = document.createElement("input")
       radio.type = "button"
-      radio.id = shift.SHIFT_ID
+      radio.id = shift["SHIFT_ID"]
       radio.name = "shift"
-      let textValue = `${shift.START_TIME} - ${shift.END_TIME} (${shift.POSITION_NAME})`
+      let textValue = `${shift["START_TIME"]} - ${shift["END_TIME"]} (${shift["POSITION_NAME"]})`
       radio.value = textValue
+      console.log(textValue)
 
       shiftItem.appendChild(radio)
       shiftContainer.appendChild(shiftItem)
-      document.getElementById(shift.SHIFT_ID).addEventListener("click", function () {
+      document.getElementById(shift["SHIFT_ID"]).addEventListener("click", function () {
         let employeeSearchElement = document.getElementById(employeeSearchId)
         employeeSearchElement.dataset.shiftTime = textValue
         radio.style.backgroundColor = "#007BFF"
@@ -200,18 +199,17 @@ async function handleSubmit() {
     employeeName: employee.value,
     employeeId: employeeId,
     shiftDate: document.getElementById("shift-date").value,
-    selectedShift: employee.dataset.shiftTime,
-    manualShift: document.getElementById("manual-shift").value,
     reason: document.getElementById("reason").value,
     comments: document.getElementById("comments").value,
     email: employee.dataset.emails,
-    points: points,
+    points: parseInt(points),
   }
 
   try {
-    const response = await fetch("/submit.php", {
+    const response = await fetch(`${BASE_URL}/workon/incr`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
+      credentials: "include",
       body: JSON.stringify(formData),
     })
 
@@ -228,13 +226,6 @@ async function handleSubmit() {
 // TODO: drop this
 document.addEventListener("DOMContentLoaded", async function () {
   document.getElementById("points-form").reset()
-  let access_code = getCookie(ACCESS_CODE)
-
-  if (access_code && validAccessCodes.includes(access_code)) {
-    await searchEmployee()
-    document.getElementById("form-content").style.display = "block"
-  } else {
-    alert("Invalid access code, redirecting to auth page")
-    // document.location.href = "/"
-  }
+  document.getElementById("form-content").style.display = "block"
+  await searchEmployee()
 })

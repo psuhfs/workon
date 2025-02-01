@@ -26,6 +26,7 @@ const validAccessCodes = [
   "alb7019",
   "mkb6611",
   "ssp5600",
+  "sdr5549",
 ]
 
 function getCookie(name) {

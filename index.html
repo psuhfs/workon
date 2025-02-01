@@ -18,10 +18,51 @@
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required />
       </form>
-      <div id="error-message" class="error-message" style="display: none; color: red; margin-top: 10px;"></div>
+      <div id="error-message" class="error-message" style="display: none; color: red; margin-top: 10px"></div>
     </main>
   </body>
 
   <script src="./js/utils.js"></script>
   <script src="./js/auth.js"></script>
+  <script>
+    // Function to authenticate user
+    async function authenticateUser() {
+      console.log("Authenticating user...")
+      const username = document.getElementById("access-code").value
+      const password = document.getElementById("password").value
+
+      try {
+        const response = await fetch(`${BASE_URL}/auth/signin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({username, password}),
+        })
+
+        if (response.ok) {
+          console.log("Authentication successful")
+          console.log("Response:", response)
+          let body = await response.json()
+          document.cookie = `token=${body.token}; path=/; max-age=3600; SameSite=None; Secure`
+          redirect("/app")
+        } else {
+          let body = await response.json()
+          displayError("Authentication failed: " + body.message)
+        }
+      } catch (error) {
+        console.error("Error during authentication:", error)
+        displayError("An error occurred during authentication. Please try again.")
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      document.addEventListener("keypress", async function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault()
+          await authenticateUser()
+        }
+      })
+    })
+  </script>
 </html>
