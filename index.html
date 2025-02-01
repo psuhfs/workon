@@ -44,7 +44,7 @@
           console.log("Authentication successful")
           console.log("Response:", response)
           let body = await response.json()
-          document.cookie = `token=${body.token}; path=/; max-age=3600; SameSite=None; Secure`
+          document.cookie = `token=${body.token}; path=/; max-age=3600; SameSite=Lax; Secure`;
           redirect("/app")
         } else {
           let body = await response.json()
