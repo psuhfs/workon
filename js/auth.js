@@ -1,6 +1,6 @@
 // Global BASE_URL
-// const BASE_URL = 'https://hfs.ssdd.dev';
-const BASE_URL = "http://localhost:3000"
+const BASE_URL = 'https://hfs.ssdd.dev';
+// const BASE_URL = "http://localhost:3000"
 
 // Function to display error message
 function displayError(message) {
@@ -17,26 +17,40 @@ function displayError(message) {
 // Function to check if user is authenticated
 async function isAuthenticated() {
   try {
-    let token = document.cookie.split("=")[1]
-    console.log(token)
+    console.log('Checking authentication...');
+    let token = getCookie('token');
+    console.log('Token from cookie:', token);
+    
+    if (!token) {
+      console.log('No token found in cookie');
+      return false;
+    }
+
     const response = await fetch(`${BASE_URL}/auth/authenticated`, {
       method: "POST",
       credentials: "include",
-    })
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    console.log('Authentication response status:', response.status);
 
     if (response.ok) {
-      return true
+      console.log('Authentication successful');
+      return true;
     } else {
+      console.log('Authentication failed');
       // Remove the token from cookies
-      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      deleteCookie('token');
       // Re-initiate auth (redirect to login page or show login form)
-      redirect("/")
-      return false
+      redirect("/");
+      return false;
     }
   } catch (error) {
-    console.error("Error checking authentication:", error)
+    console.error("Error checking authentication:", error);
     // In case of error, we assume the user is not authenticated
-    return false
+    return false;
   }
 }
 
