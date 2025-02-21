@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Points Tracker</title>
-    <link rel="stylesheet" href="./styles/styles.css" />
+    <link rel="stylesheet" href="../styles/styles.css" />
   </head>
 
   <body>
@@ -13,56 +13,56 @@
       <h1>Points Tracker</h1>
       <br />
       <form id="points-form" onsubmit="return false;">
-        <label for="access-code">Access Code:</label>
-        <input type="text" id="access-code" name="access-code" required />
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required />
+        <div id="form-content" style="display: none">
+          <label for="employee-search">Search Employee:</label>
+          <input type="text" id="employee-search" placeholder="Start typing an employee name..." />
+          <div id="employee-results" class="dropdown-results"></div>
+
+          <div id="employee-id-container" style="display: none">
+            <label for="employee-id">Employee ID:</label>
+            <input type="text" id="employee-id" name="employee-id" placeholder="Enter employee ID" />
+          </div>
+
+          <label for="shift-date">Select Date:</label>
+          <input type="date" id="shift-date" name="shift-date" required />
+
+          <div id="shift-options" class="shift-container">
+            <p>Select a shift or enter details manually below:</p>
+          </div>
+
+          <label for="manual-shift">Manual Shift Entry (if needed):</label>
+          <input type="text" id="manual-shift" name="manual-shift" placeholder="E.g., 9:00 AM - 5:00 PM" />
+
+          <legend>Reason for Points:</legend>
+          <div class="button-group">
+            <button type="button" class="reason-button" onclick="selectReason(this)" points="1">Tardy</button>
+
+            <button type="button" class="reason-button" points="1" onclick="selectReason(this)">
+              Uniform & Grooming Standards
+            </button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" points="4">NCNS</button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" points="3">
+              Unexcused Absence
+            </button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" points="0">Excused Absence</button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" points="1">No ID</button>
+            <button type="button" class="reason-button" onclick="selectReason(this)" points="6">Safety Issue</button>
+            <button type="button" class="reason-button" onclick="selectReason(this)">Other</button>
+          </div>
+
+          <input type="hidden" id="reason" name="reason" required />
+
+          <label for="comments">Comments:</label>
+          <textarea id="comments" name="comments" rows="4" placeholder="Enter additional comments"></textarea>
+          <input type="hidden" id="selected-points" name="selected-points" value="" />
+
+          <button type="submit" id="form-submit" onclick="handleSubmit()">Submit</button>
+        </div>
       </form>
-      <div id="error-message" class="error-message" style="display: none; color: red; margin-top: 10px"></div>
     </main>
   </body>
 
-  <script src="./js/utils.js"></script>
+  <script src="../utils.js"></script>
+  <script src="./js/workon.js"></script>
   <script src="./js/auth.js"></script>
-  <script>
-    // Function to authenticate user
-    async function authenticateUser() {
-      console.log("Authenticating user...")
-      const username = document.getElementById("access-code").value
-      const password = document.getElementById("password").value
-
-      try {
-        const response = await fetch(`${BASE_URL}/auth/signin`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({username, password}),
-        })
-
-        if (response.ok) {
-          console.log("Authentication successful")
-          console.log("Response:", response)
-          let body = await response.json()
-          document.cookie = `token=${body.token}; path=/; max-age=3600; SameSite=Lax; Secure`;
-          redirect("/app")
-        } else {
-          let body = await response.json()
-          displayError("Authentication failed: " + body.message)
-        }
-      } catch (error) {
-        console.error("Error during authentication:", error)
-        displayError("An error occurred during authentication. Please try again.")
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", async function () {
-      document.addEventListener("keypress", async function (event) {
-        if (event.key === "Enter") {
-          event.preventDefault()
-          await authenticateUser()
-        }
-      })
-    })
-  </script>
 </html>
