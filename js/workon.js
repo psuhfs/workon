@@ -201,7 +201,6 @@ async function handleSubmit() {
     }
 
     const formData = {
-        accessCode: getCookie(ACCESS_CODE),
         employeeName: employee.value,
         employeeId: employeeId,
         shiftDate: document.getElementById("shift-date").value,
