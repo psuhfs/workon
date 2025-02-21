@@ -89,7 +89,7 @@ async function searchEmployee() {
             credentials: "include",
             headers: {
                 "Content-Type": "application/json",
-                'Authorization': `Bearer ${getCookie("token")}`
+                'Authorization': `Bearer ${getToken()}`
             }
         })
         const employeeResponseData = await responseEmployees.text()
@@ -119,7 +119,7 @@ async function searchEmployee() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    'Authorization': `Bearer ${getCookie("token")}`
+                    'Authorization': `Bearer ${getToken()}`
                 },
                 credentials: "include",
                 body: JSON.stringify({date: selectedDate}),
@@ -216,7 +216,7 @@ async function handleSubmit() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                'Authorization': `Bearer ${getCookie("token")}`
+                'Authorization': `Bearer ${getToken()}`
             },
             credentials: "include",
             body: JSON.stringify(formData),
